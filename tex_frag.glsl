@@ -15,10 +15,10 @@ void main(void) {
   vec4 texColor0 = vec4(vColor.x, vColor.y, vColor.z, 1);
   vec4 texColor1 = texture2D(uTexUnit, vTexCoord);
   
-  if (isLight == 1) {
-    gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-    return;
-  }
+//   if (isLight == 1) {
+//     gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+//     return;
+//   }
   
   vec3 uLightColor = vec3(1.0, 1.0, 1.0);
   

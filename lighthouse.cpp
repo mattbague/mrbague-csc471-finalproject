@@ -78,7 +78,7 @@ GLuint h_isLight;
 int g_CiboLen, g_GiboLen, g_HiboLen, g_RiboLen, g_LiboLen;
 static float  g_width, g_height;
 float g_angle = 0;
-float g_trans = -10;
+float g_trans = -3;
 float g_transy = -3;
 float lightRot = 0;
 
@@ -120,7 +120,7 @@ static void initGround() {
      g_groundSize, g_groundY, -g_groundSize
     };
 
-    float rep = 8;
+    float rep = 3;
     
     float GrndTex[] = {
       0, 0,
@@ -163,19 +163,23 @@ static void initCube() {
     -1.5, -1.5, -1.5, //back face 5 verts :0 
     -1.0, 2.5, -1.0,
     1.0, 2.5, -1.0,
-    1.5, -1.5, -1.5,
+    1.5, -1.5, -1.5
+    ,
     1.5, -1.5, 1.5, //right face 5 verts :4
     1.0, 2.5, 1.0,
     1.0, 2.5, -1.0,
     1.5, -1.5, -1.5,
+    
     -1.5, -1.5, 1.5, //front face 4 verts :8
     -1.0, 2.5, 1.0,
     1.0, 2.5, 1.0,
     1.5, -1.5, 1.5,
+    
     -1.5, -1.5, -1.5, //left face 4 verts :12
     -1.0, 2.5, -1.0,
     -1.0, 2.5, 1.0,
     -1.5, -1.5, 1.5,
+    
     -1, 2.5, -1, //top
     -1, 2.5, 1,
     1, 2.5, 1,
@@ -187,14 +191,17 @@ static void initCube() {
       0.75, 1,
       0.5, 1,
       0.5, 0,
+      
       0.25, 0, //right 
       0.25, 1,
       0.5, 1,
       0.5, 0,
+      
       0, 0, //front 
       0, 1,
       0.25, 1,
       0.25, 0,
+      
       0.75, 0, // left 
       0.75, 1,
       1, 1,
@@ -227,7 +234,12 @@ static void initCube() {
       1.0f, 0.f, 0.0f,
       1.0f, 0.f, 0.0f,
       1.0f, 0.f, 0.0f,
-      1.0f, 0.f, 0.0f
+      1.0f, 0.f, 0.0f,
+      
+      0.0f, 1.f, 0.0f,
+      0.0f, 1.f, 0.0f,
+      0.0f, 1.f, 0.0f,
+      0.0f, 1.f, 0.0f      
    };
    
     unsigned short idx[] = {0, 1, 2,  2, 3, 0,  4, 5, 6, 6, 7, 4,  8, 9, 10, 10, 11, 8,  12, 13, 14, 14, 15, 12,
@@ -272,7 +284,7 @@ static void initHexPrism() {
     x, b_height, -z                 //11
   };  
 
-  static GLfloat HexTex[] = {
+  /*static GLfloat HexTex[] = {
     -x, t_height, -z,                   //0
     -1, t_height, 0,                //1
     -x, t_height, z,                    //2
@@ -286,7 +298,25 @@ static void initHexPrism() {
     x, b_height, z,                 //9
     1, b_height, 0,           //10
     x, b_height, -z                 //11  
-    };   
+    };   */
+    
+    //TESTING
+  static GLfloat HexTex[] = {
+      0, 1, //top
+      1, 1,
+      1, 0,
+      0, 0,
+    
+      0, 1, //top
+      1, 1,
+      1, 0,
+      0, 0,
+    
+      0, 1, //top
+      1, 1,
+      1, 0,
+      0, 0,    
+  };  
   
   unsigned short idx[] = {0, 6, 1, 1, 7, 6,
     1, 7, 2, 2, 8, 7,
@@ -321,11 +351,12 @@ static void initRoof() {
   };
   
   float RoofTex[] = {
-    -base, 3.5, base,
-    base, 3.5, base,
-    base, 3.5, -base,
-    -base, 3.5, -base,
-    0.0, 4.75, 0.0    
+    0.0, 0.0,
+    .5, 1.0,
+    1.0, 0.0,
+    
+    0.0, 0.5,
+    1.0, .5,
   };  
    
    unsigned short idx[] = {0, 1, 4, 1, 2, 4, 2, 3, 4, 0, 3, 4, 0, 2, 3, 0, 1, 2};
@@ -373,7 +404,7 @@ void InitGeom() {
   initGround();
   initHexPrism();
   initRoof();
-  initLight();
+//   initLight();
 }
 
 /*function to help load the shaders (both vertex and fragment */
@@ -453,7 +484,7 @@ void Initialize ()                  // Any GL Init Code
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);     
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);     
 }
 
 void drawLight() {   
@@ -486,7 +517,7 @@ void drawRoof() {
     safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     safe_glEnableVertexAttribArray(h_aTexCoord);
-    glBindBuffer(GL_ARRAY_BUFFER, HTexBuffObj);
+    glBindBuffer(GL_ARRAY_BUFFER, RTexBuffObj);
     safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
     
     // bind ibo
@@ -546,7 +577,7 @@ void drawCube() {
 
     safe_glDisableVertexAttribArray(h_aPosition);
     safe_glDisableVertexAttribArray(h_aTexCoord);      
-//     safe_glDisableVertexAttribArray(h_aNormal);  
+    safe_glDisableVertexAttribArray(h_aNormal);  
 }
 
 void drawGround() {
@@ -574,7 +605,7 @@ void drawGround() {
     
     safe_glDisableVertexAttribArray(h_aPosition);
     safe_glDisableVertexAttribArray(h_aTexCoord);
-//     safe_glDisableVertexAttribArray(h_aNormal);    
+    safe_glDisableVertexAttribArray(h_aNormal);    
 }
 
 /* Main display function */
@@ -713,7 +744,7 @@ int main(int argc, char** argv) {
   glutDisplayFunc(Draw);
   glutReshapeFunc(ReshapeGL);
   glutKeyboardFunc(keyboard);
-  glutIdleFunc(animate);
+//   glutIdleFunc(animate);
   cube = 0;
 
   Initialize();
