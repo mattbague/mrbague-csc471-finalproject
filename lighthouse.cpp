@@ -69,6 +69,9 @@ GLint h_aNormal;
 GLint h_uLightPos;
 GLint h_uLightColor;
 
+static int SHADER_MODE; // 1 = Nothing, 2 = Fog, 3 = Rain, 4 = Snow
+static bool ROTATE = false;
+
 GLuint CubeBuffObj, CIndxBuffObj, TexBuffObj, CNormBuffObj;
 GLuint GrndBuffObj, GIndxBuffObj, GTexBuffObj, GNormBuffObj;
 GLuint HexBuffObj, HIndxBuffObj, HTexBuffObj, HNormBuffObj;
@@ -387,9 +390,14 @@ static void initLight() {
     0.35, -0.35, 0.35
   };
    
-   unsigned short idx[] = {0, 1, 2, 0, 2, 3, 7, 6, 4, 4, 6, 5, 1, 5, 6, 1, 6, 2, 0, 3, 7, 0, 7, 4};
+   unsigned short idx[] = {0, 1, 2, 0, 2, 3, 7, 6, 4, 4, 6, 5, 1, 5, 6, 1, 6, 2, 0, 3, 7, 0, 7, 4,
+     2, 3, 6,
+     3, 7, 6,
+     0, 1, 5,
+     0, 4, 5
+  };
 
-    g_LiboLen = 24;
+    g_LiboLen = 36;
     glGenBuffers(1, &LightBuffObj);
     glBindBuffer(GL_ARRAY_BUFFER, LightBuffObj);
     glBufferData(GL_ARRAY_BUFFER, sizeof(CubePos), CubePos, GL_STATIC_DRAW);
@@ -404,7 +412,7 @@ void InitGeom() {
   initGround();
   initHexPrism();
   initRoof();
-//   initLight();
+  initLight();
 }
 
 /*function to help load the shaders (both vertex and fragment */
@@ -473,7 +481,7 @@ int InstallShader(const GLchar *vShaderName, const GLchar *fShaderName) {
 void Initialize ()                  // Any GL Init Code
 {
     // Start Of User Initialization
-    glClearColor(0.5f,0.5f,0.5f,1.0f);          // We'll Clear To The Color Of The Fog ( Modified )
+    glClearColor(.529f,.808f,.980f,1.0f);
     // Black Background
     glClearDepth (1.0f);    // Depth Buffer Setup
     glDepthFunc (GL_LEQUAL);    // The Type Of Depth Testing
@@ -488,131 +496,154 @@ void Initialize ()                  // Any GL Init Code
 }
 
 void drawLight() {   
-    safe_glEnableVertexAttribArray(h_aPosition);
-    glBindBuffer(GL_ARRAY_BUFFER, LightBuffObj);
-    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);    
-    glUniform1i(h_isLight, 1);
+  glUniform1i(h_isLight, 1);
+  safe_glEnableVertexAttribArray(h_aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, LightBuffObj);
+  safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);    
+  glUniform1i(h_isLight, 1);
     
-    glm::mat4 Trans = glm::translate(glm::mat4(1.0f), lp);
-    glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), lightRot, glm::vec3(0, 1, 0));
-    safe_glUniformMatrix4fv(h_uModelMatrix, glm::value_ptr(Rot*Trans));
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), lp);
+  glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), lightRot, glm::vec3(0, 1, 0));
+  safe_glUniformMatrix4fv(h_uModelMatrix, glm::value_ptr(Rot*Trans));
     
-    // bind ibo
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, LIndxBuffObj);
-    glDrawElements(GL_TRIANGLES, g_LiboLen, GL_UNSIGNED_SHORT, 0);       
-    glUniform1i(h_isLight, 0);
+  // bind ibo
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, LIndxBuffObj);
+  glDrawElements(GL_TRIANGLES, g_LiboLen, GL_UNSIGNED_SHORT, 0);           
     
-    safe_glDisableVertexAttribArray(h_aPosition);   
+  safe_glDisableVertexAttribArray(h_aPosition);   
 }
 
 void drawRoof() {
-    glEnable(GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, 3);
+  glUniform1i(h_isLight, 0);
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, 3);
 
-    safe_glUniform1i(h_uTexUnit, 3);
+  safe_glUniform1i(h_uTexUnit, 3);
     
-    safe_glEnableVertexAttribArray(h_aPosition);
-    glBindBuffer(GL_ARRAY_BUFFER, RoofBuffObj);
-    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  safe_glEnableVertexAttribArray(h_aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, RoofBuffObj);
+  safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    safe_glEnableVertexAttribArray(h_aTexCoord);
-    glBindBuffer(GL_ARRAY_BUFFER, RTexBuffObj);
-    safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
+  safe_glEnableVertexAttribArray(h_aTexCoord);
+  glBindBuffer(GL_ARRAY_BUFFER, RTexBuffObj);
+  safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
     
-    // bind ibo
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RIndxBuffObj);
-    glDrawElements(GL_TRIANGLES, g_RiboLen, GL_UNSIGNED_SHORT, 0);
-    
-    safe_glDisableVertexAttribArray(h_aPosition);
-    safe_glDisableVertexAttribArray(h_aTexCoord);    
+  // bind ibo
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RIndxBuffObj);
+  glDrawElements(GL_TRIANGLES, g_RiboLen, GL_UNSIGNED_SHORT, 0);
+   
+  safe_glDisableVertexAttribArray(h_aPosition);
+  safe_glDisableVertexAttribArray(h_aTexCoord);    
 }
 
 void drawHexPrism() {
-    glEnable(GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, 2);
+  glUniform1i(h_isLight, 0);  
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, 2);
 
-    safe_glUniform1i(h_uTexUnit, 2);
+  safe_glUniform1i(h_uTexUnit, 2);
     
-    safe_glEnableVertexAttribArray(h_aPosition);
-    glBindBuffer(GL_ARRAY_BUFFER, HexBuffObj);
-    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  safe_glEnableVertexAttribArray(h_aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, HexBuffObj);
+  safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    safe_glEnableVertexAttribArray(h_aTexCoord);
-    glBindBuffer(GL_ARRAY_BUFFER, HTexBuffObj);
-    safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
+  safe_glEnableVertexAttribArray(h_aTexCoord);
+  glBindBuffer(GL_ARRAY_BUFFER, HTexBuffObj);
+  safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
     
-    // bind ibo
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, HIndxBuffObj);
-    glDrawElements(GL_TRIANGLES, g_HiboLen, GL_UNSIGNED_SHORT, 0);
+  // bind ibo
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, HIndxBuffObj);
+  glDrawElements(GL_TRIANGLES, g_HiboLen, GL_UNSIGNED_SHORT, 0);
     
-    safe_glDisableVertexAttribArray(h_aPosition);
-    safe_glDisableVertexAttribArray(h_aTexCoord);  
+  safe_glDisableVertexAttribArray(h_aPosition);
+  safe_glDisableVertexAttribArray(h_aTexCoord);  
 }
 
 void drawCube() {
-    //set up the texture unit
-    glEnable(GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+  glUniform1i(h_isLight, 0);  
+  //set up the texture unit
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
-    safe_glUniform1i(h_uTexUnit, 0);
+  safe_glUniform1i(h_uTexUnit, 0);
         
-    safe_glEnableVertexAttribArray(h_aPosition);
-    glBindBuffer(GL_ARRAY_BUFFER, CubeBuffObj);
-    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  safe_glEnableVertexAttribArray(h_aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, CubeBuffObj);
+  safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    safe_glEnableVertexAttribArray(h_aTexCoord);
-    glBindBuffer(GL_ARRAY_BUFFER, TexBuffObj);
-    safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
+  safe_glEnableVertexAttribArray(h_aTexCoord);
+  glBindBuffer(GL_ARRAY_BUFFER, TexBuffObj);
+  safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
     
-    safe_glEnableVertexAttribArray(h_aNormal);
-    glBindBuffer(GL_ARRAY_BUFFER, CNormBuffObj);
-    safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);     
+  safe_glEnableVertexAttribArray(h_aNormal);
+  glBindBuffer(GL_ARRAY_BUFFER, CNormBuffObj);
+  safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);     
     
-    // bind ibo
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
-    glDrawElements(GL_TRIANGLES, g_CiboLen, GL_UNSIGNED_SHORT, 0);
+  // bind ibo
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
+  glDrawElements(GL_TRIANGLES, g_CiboLen, GL_UNSIGNED_SHORT, 0);
 
-    safe_glDisableVertexAttribArray(h_aPosition);
-    safe_glDisableVertexAttribArray(h_aTexCoord);      
-    safe_glDisableVertexAttribArray(h_aNormal);  
+  safe_glDisableVertexAttribArray(h_aPosition);
+  safe_glDisableVertexAttribArray(h_aTexCoord);      
+  safe_glDisableVertexAttribArray(h_aNormal);  
 }
 
 void drawGround() {
-    glEnable(GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, 1);
+  glUniform1i(h_isLight, 0);
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, 1);
 
-    safe_glUniform1i(h_uTexUnit, 1);
+  safe_glUniform1i(h_uTexUnit, 1);
    
-    safe_glEnableVertexAttribArray(h_aPosition);
-    glBindBuffer(GL_ARRAY_BUFFER, GrndBuffObj);
-    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  safe_glEnableVertexAttribArray(h_aPosition);
+  glBindBuffer(GL_ARRAY_BUFFER, GrndBuffObj);
+  safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    safe_glEnableVertexAttribArray(h_aTexCoord);
-    glBindBuffer(GL_ARRAY_BUFFER, GTexBuffObj);
-    safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
+  safe_glEnableVertexAttribArray(h_aTexCoord);
+  glBindBuffer(GL_ARRAY_BUFFER, GTexBuffObj);
+  safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
 
-    safe_glEnableVertexAttribArray(h_aNormal);
-    glBindBuffer(GL_ARRAY_BUFFER, GNormBuffObj);
-    safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);   
+  safe_glEnableVertexAttribArray(h_aNormal);
+  glBindBuffer(GL_ARRAY_BUFFER, GNormBuffObj);
+  safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);   
     
-    // bind ibo
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GIndxBuffObj);
-    glDrawElements(GL_TRIANGLES, g_GiboLen, GL_UNSIGNED_SHORT, 0);   
+  // bind ibo
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GIndxBuffObj);
+  glDrawElements(GL_TRIANGLES, g_GiboLen, GL_UNSIGNED_SHORT, 0);   
     
-    safe_glDisableVertexAttribArray(h_aPosition);
-    safe_glDisableVertexAttribArray(h_aTexCoord);
-    safe_glDisableVertexAttribArray(h_aNormal);    
+  safe_glDisableVertexAttribArray(h_aPosition);
+  safe_glDisableVertexAttribArray(h_aTexCoord);
+  safe_glDisableVertexAttribArray(h_aNormal);    
+}
+
+void determineClearColor() {
+  switch(SHADER_MODE) {  
+    case 1:
+      glClearColor(.529f,.808f,.980f,1.0f);
+      break;
+    case 2:
+      glClearColor(0.5f,0.5f,0.5f,1.0f);
+      break;
+    case 3:
+      glClearColor(0.8f,0.8f,0.8f,1.0f);
+      break;
+    case 4:
+      glClearColor(0.0f,0.0f,0.0f,1.0f);
+      break;      
+  }
+  
+  glutPostRedisplay();
 }
 
 /* Main display function */
 void Draw (void)
 {
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-  
+  determineClearColor();
     //Start our shader
     glUseProgram(ShadeProg);
     
@@ -656,34 +687,61 @@ void keyboard(unsigned char key, int x, int y ){
     case 'd':
       g_angle -= 1;
       break;
-  case 'r':
+    case 'r':
       g_transy -= .1;
       break;
-  case 'f':
+    case 'f':
       g_transy += .1;
       break;      
-  case 'u':
-    lp.x +=.1;
-    break;
-  case 'j':
-    lp.x -=.1;
-    break;
-  case 'i':
-    lp.y +=.1;
-    break;
-  case 'k':
-    lp.y -=.1;
-    break;
-  case 'o':
-    lp.z +=.1;
-    break;
-  case 'l':
-    lp.z -=.1;
-    break;    
-  case 'c':
-    lp = glm::vec3(0, 5.0, 0);
-    break;
- case 'q': case 'Q' :
+    case 'u':
+      lp.x +=.1;
+      break;
+    case 'j':
+      lp.x -=.1;
+      break;
+    case 'i':
+      lp.y +=.1;
+      break;
+    case 'k':
+      lp.y -=.1;
+      break;
+    case 'o':
+      lp.z +=.1;
+      break;
+    case 'l':
+      lp.z -=.1;
+      break;    
+    case 'c':
+      lp = glm::vec3(0, 5.0, 0);
+      break;
+    case '1':
+      if (!InstallShader(textFileRead((char *)"none_vert.glsl"), textFileRead((char *)"none_frag.glsl"))) {
+        printf("Error installing Rain shader!\n");
+      } 
+      SHADER_MODE = 1;
+      break;      
+    case '2':
+      if (!InstallShader(textFileRead((char *)"fog_vert.glsl"), textFileRead((char *)"fog_frag.glsl"))) {
+        printf("Error installing Fog shader!\n");
+      }
+      SHADER_MODE = 2;
+      break;
+    case '3':
+      if (!InstallShader(textFileRead((char *)"rain_vert.glsl"), textFileRead((char *)"rain_frag.glsl"))) {
+        printf("Error installing Rain shader!\n");
+      } 
+      SHADER_MODE = 3;
+      break;
+    case '4':
+      if (!InstallShader(textFileRead((char *)"snow_vert.glsl"), textFileRead((char *)"snow_frag.glsl"))) {
+        printf("Error installing Rain shader!\n");
+      } 
+      SHADER_MODE = 4;
+      break;      
+    case 'z':
+      ROTATE = !ROTATE;
+      break;
+    case 'q': case 'Q' :
       exit( EXIT_SUCCESS );
       break;
   }
@@ -723,13 +781,15 @@ void ReshapeGL (int width, int height)
 
 }
 
-void animate() {
-  if (lightRot > 360.0) {
-    lightRot = -1;
+void animate(int value) {
+  if (ROTATE == true) {
+    if (lightRot > 360.0) {
+      lightRot = -1;
+    }
+    lightRot++;
   }
-  lightRot++;
-  
-  glutPostRedisplay();
+  glutTimerFunc(25, animate, 0);
+  glutPostRedisplay();  
 }
 
 int main(int argc, char** argv) {
@@ -744,7 +804,7 @@ int main(int argc, char** argv) {
   glutDisplayFunc(Draw);
   glutReshapeFunc(ReshapeGL);
   glutKeyboardFunc(keyboard);
-//   glutIdleFunc(animate);
+  glutTimerFunc(25, animate, 0);
   cube = 0;
 
   Initialize();
@@ -759,7 +819,7 @@ int main(int argc, char** argv) {
   //test the openGL version
   getGLversion();
   //install the shader
-  if (!InstallShader(textFileRead((char *)"tex_vert.glsl"), textFileRead((char *)"tex_frag.glsl"))) {
+  if (!InstallShader(textFileRead((char *)"none_vert.glsl"), textFileRead((char *)"none_frag.glsl"))) {
         printf("Error installing shader!\n");
         return 0;
   }
@@ -893,7 +953,3 @@ int ImageLoad(char *filename, Image *image) {
   /*  we're done. */
   return 1;
 }
-
-
-
-
