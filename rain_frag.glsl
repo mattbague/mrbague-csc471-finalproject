@@ -30,6 +30,7 @@ void main(void) {
   }
   else {*/
     // Output color = color of the texture at the specified UV
-    gl_FragColor = texture2D( myTextureSampler, UV ) * particlecolor;
+//     gl_FragColor = texture2D( myTextureSampler, UV ) * particlecolor;
+  gl_FragColor = particlecolor;
 //   }  
 }

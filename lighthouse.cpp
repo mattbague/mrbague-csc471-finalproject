@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <vector>
 #include <algorithm>
+#include <time.h>
 
 using namespace std;
 using namespace glm;
@@ -83,7 +84,7 @@ GLuint h_isLight;
 int g_CiboLen, g_GiboLen, g_HiboLen, g_RiboLen, g_LiboLen;
 static float  g_width, g_height;
 float g_angle = 0;
-float g_trans = -1;
+float g_trans = -3;
 float g_transy = -3;
 float lightRot = 0;
 
@@ -610,7 +611,8 @@ void Initialize ()                  // Any GL Init Code
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);     
 }
 
-double lastTime = time(NULL);
+// double lastTime = time(NULL);
+clock_t lastTime = clock();
 
 void drawRain() {
   // Enable depth test
@@ -618,8 +620,8 @@ void drawRain() {
   // Accept fragment if it closer to the camera than the former one
   glDepthFunc(GL_LESS);
   
-    double currentTime = time(NULL);
-    double delta = currentTime - lastTime;
+    clock_t currentTime = clock();
+    double delta = (((float)currentTime - (float)lastTime) / 1000000.0F );
     lastTime = currentTime;  
   
     // Generate 10 new particule each millisecond,
@@ -955,6 +957,10 @@ void Draw (void)
     
     //Set up light
     glUniform3f(h_uLightPos, lp.x, lp.y, lp.z);
+
+    if (MAKE_IT_RAIN == true) {
+     drawRain();
+    }
     
     //Draw the objects
     drawGround();
@@ -962,9 +968,7 @@ void Draw (void)
     drawHexPrism();
     drawRoof();    
     drawLight();
-    if (MAKE_IT_RAIN == true) {
-     drawRain();
-    }
+
     glutSwapBuffers();    
     
     //Disable the shader
