@@ -328,23 +328,6 @@ static void initHexPrism() {
     x, b_height, -z                 //11
   };  
 
-  /*static GLfloat HexTex[] = {
-    -x, t_height, -z,                   //0
-    -1, t_height, 0,                //1
-    -x, t_height, z,                    //2
-    x, t_height, z,                     //3
-    1, t_height, 0,               //4
-    x, t_height, -z,                    //5
-    // Bottom hexagon: 6 verts going CW
-    -x, b_height, -z,              //6
-    -1, b_height, 0,            //7
-    -x, b_height, z,                //8
-    x, b_height, z,                 //9
-    1, b_height, 0,           //10
-    x, b_height, -z                 //11  
-    };   */
-    
-    //TESTING
   static GLfloat HexTex[] = {
       0, 1, //top
       1, 1,
@@ -616,6 +599,11 @@ void Initialize ()                  // Any GL Init Code
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);     
 }
 
+//Particle settings
+double fallrate = -9.81;
+double p_life = 5.0; //In seconds
+glm::vec3 p_color = glm::vec3(16, 78, 139);
+
 // double lastTime = time(NULL);
 clock_t lastTime = clock();
 
@@ -639,7 +627,7 @@ void drawRain() {
     
     for(int i=0; i<newparticles; i++){
       int particleIndex = FindUnusedParticle();
-      ParticlesContainer[particleIndex].life = 5.0f; // This particle will live 5 seconds.
+      ParticlesContainer[particleIndex].life = p_life; // This particle will live 5 seconds.
       ParticlesContainer[particleIndex].pos = glm::vec3(0,10,0.0f);
 
       float spread = 1.5f;
@@ -661,9 +649,11 @@ void drawRain() {
 //       ParticlesContainer[particleIndex].g = rand() % 256;
 //       ParticlesContainer[particleIndex].b = rand() % 256;
 //       ParticlesContainer[particleIndex].a = (rand() % 256) / 3;
-      ParticlesContainer[particleIndex].r = 16;
-      ParticlesContainer[particleIndex].g = 78;
-      ParticlesContainer[particleIndex].b = 139;
+
+      ParticlesContainer[particleIndex].r = p_color.x;
+      ParticlesContainer[particleIndex].g = p_color.y;
+      ParticlesContainer[particleIndex].b = p_color.z;
+        
       ParticlesContainer[particleIndex].a = (rand() % 256) / 3;      
 
       ParticlesContainer[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;
@@ -683,7 +673,7 @@ void drawRain() {
         if (p.life > 0.0f){
 
           // Simulate simple physics : gravity only, no collisions
-          p.speed += glm::vec3(0.0f,-9.81f, 0.0f) * (float)delta * 0.5f;
+          p.speed += glm::vec3(0.0f, fallrate, 0.0f) * (float)delta * 0.5f;
           p.pos += p.speed * (float)delta;
           p.cameradistance = glm::length2( p.pos - glm::vec3(0, -g_transy, -g_trans));
           //ParticlesContainer[i].pos += glm::vec3(0.0f,10.0f, 0.0f) * (float)delta;
@@ -985,6 +975,50 @@ void Draw (void)
     glDisable(GL_TEXTURE_2D);
 }
 
+void setupRain() {
+  static const GLfloat g_vertex_buffer_data[] = { 
+//   -0.5f, -0.5f, 0.0f,
+//   0.5f, -0.5f, 0.0f,
+//   -0.5f, 0.5f, 0.0f,
+//   0.5f, 0.5f, 0.0f,
+  
+  -0.02f, -0.25f, 0.0f,
+  0.02f, -0.25f, 0.0f,
+  -0.02f, 0.25f, 0.0f,
+  0.02f, 0.25f, 0.0f,
+  };
+  
+  glGenBuffers(1, &billboard_vertex_buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+  
+  fallrate = -9.81;
+  p_life = 5.0;
+  p_color = glm::vec3(16,78,139);
+}
+
+void setupSnow() {
+  static const GLfloat g_vertex_buffer_data[] = { 
+//   -0.5f, -0.5f, 0.0f,
+//   0.5f, -0.5f, 0.0f,
+//   -0.5f, 0.5f, 0.0f,
+//   0.5f, 0.5f, 0.0f,
+  
+  -0.05f, -0.05f, 0.0f,
+  0.05f, -0.05f, 0.0f,
+  -0.05f, 0.05f, 0.0f,
+  0.05f, 0.05f, 0.0f,
+  };  
+
+  glGenBuffers(1, &billboard_vertex_buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);  
+/*  
+  fallrate = -3;
+  p_life = 20.0;*/
+  p_color = glm::vec3(255, 250, 250);
+}
+
 void keyboard(unsigned char key, int x, int y ){
   switch( key ) {
     /* WASD keyes effect view/camera transform */
@@ -1043,13 +1077,15 @@ void keyboard(unsigned char key, int x, int y ){
       if (!InstallShader(textFileRead((char *)"rain_vert.glsl"), textFileRead((char *)"rain_frag.glsl"))) {
         printf("Error installing Rain shader!\n");
       } 
-      SHADER_MODE = 3;      
+      SHADER_MODE = 3;
+      setupRain();
       break;
     case '4':
       if (!InstallShader(textFileRead((char *)"snow_vert.glsl"), textFileRead((char *)"snow_frag.glsl"))) {
         printf("Error installing Rain shader!\n");
       } 
       SHADER_MODE = 4;
+      setupSnow();
       break;      
     case 'z':
       ROTATE = !ROTATE;
