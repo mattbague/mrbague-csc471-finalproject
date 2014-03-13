@@ -83,7 +83,7 @@ GLuint h_isLight;
 int g_CiboLen, g_GiboLen, g_HiboLen, g_RiboLen, g_LiboLen;
 static float  g_width, g_height;
 float g_angle = 0;
-float g_trans = -1;
+float g_trans = -3;
 float g_transy = -3;
 float lightRot = 0;
 
@@ -561,7 +561,7 @@ int InstallShader(const GLchar *vShaderName, const GLchar *fShaderName) {
 
         /* get handles to attribute data */
        h_aPosition = safe_glGetAttribLocation(ShadeProg, "aPosition");
-       h_aNormal = safe_glGetAttribLocation(ShadeProg, "aNormal");
+//        h_aNormal = safe_glGetAttribLocation(ShadeProg, "aNormal");
        h_aTexCoord = safe_glGetAttribLocation(ShadeProg,  "aTexCoord");
        h_uTexUnit = safe_glGetUniformLocation(ShadeProg, "uTexUnit");
        h_uProjMatrix = safe_glGetUniformLocation(ShadeProg, "uProjMatrix");
@@ -875,9 +875,9 @@ void drawCube() {
   glBindBuffer(GL_ARRAY_BUFFER, TexBuffObj);
   safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
     
-  safe_glEnableVertexAttribArray(h_aNormal);
-  glBindBuffer(GL_ARRAY_BUFFER, CNormBuffObj);
-  safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);     
+//   safe_glEnableVertexAttribArray(h_aNormal);
+//   glBindBuffer(GL_ARRAY_BUFFER, CNormBuffObj);
+//   safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);     
     
   // bind ibo
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
@@ -885,7 +885,7 @@ void drawCube() {
 
   safe_glDisableVertexAttribArray(h_aPosition);
   safe_glDisableVertexAttribArray(h_aTexCoord);      
-  safe_glDisableVertexAttribArray(h_aNormal);  
+//   safe_glDisableVertexAttribArray(h_aNormal);  
 }
 
 void drawGround() {
@@ -904,9 +904,9 @@ void drawGround() {
   glBindBuffer(GL_ARRAY_BUFFER, GTexBuffObj);
   safe_glVertexAttribPointer(h_aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0); 
 
-  safe_glEnableVertexAttribArray(h_aNormal);
-  glBindBuffer(GL_ARRAY_BUFFER, GNormBuffObj);
-  safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);   
+//   safe_glEnableVertexAttribArray(h_aNormal);
+//   glBindBuffer(GL_ARRAY_BUFFER, GNormBuffObj);
+//   safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);   
     
   // bind ibo
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GIndxBuffObj);
@@ -914,7 +914,7 @@ void drawGround() {
     
   safe_glDisableVertexAttribArray(h_aPosition);
   safe_glDisableVertexAttribArray(h_aTexCoord);
-  safe_glDisableVertexAttribArray(h_aNormal);    
+//   safe_glDisableVertexAttribArray(h_aNormal);    
 }
 
 void determineClearColor() {
