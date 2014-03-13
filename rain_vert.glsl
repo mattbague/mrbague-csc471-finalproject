@@ -29,33 +29,37 @@ varying vec3 vNorm;
 varying vec3 vVert;
 
 attribute vec3 aNormal;
+uniform int isLight;
 
 void main() {
-  vec4 vPosition;
+  if (isLight == 1) { //REUSING VARIABLE CAUSE I'M LAZY
+    float particleSize = xyzs.w; // because we encoded it this way.
+    vec3 particleCenter_wordspace = xyzs.xyz;
+    
+    vec3 vertexPosition_worldspace = 
+      particleCenter_wordspace
+      + CameraRight_worldspace * squareVertices.x * particleSize
+      + CameraUp_worldspace * squareVertices.y * particleSize;
 
-  /* First model transforms */
-  vPosition = uModelMatrix* vec4(aPosition.x, aPosition.y, aPosition.z, 1);
-  vPosition = uViewMatrix* vPosition;
-//   gl_Position = uProjMatrix*vPosition;
+    // Output position of the vertex
+    gl_Position = VP * vec4(vertexPosition_worldspace, 1.0f);
 
-  vVert = vec3(uModelMatrix * vec4(aPosition.x, aPosition.y, aPosition.z, 1));
-  vNorm = vec3(uModelMatrix * vec4(aNormal.x, aNormal.y, aNormal.z, 0));
-  
-  vColor = vec3(0.56, 0.3, 0.1);
-  vTexCoord = aTexCoord;
-  
-  float particleSize = xyzs.w; // because we encoded it this way.
-  vec3 particleCenter_wordspace = xyzs.xyz;
-  
-  vec3 vertexPosition_worldspace = 
-    particleCenter_wordspace
-    + CameraRight_worldspace * squareVertices.x * particleSize
-    + CameraUp_worldspace * squareVertices.y * particleSize;
+    // UV of the vertex. No special space for this one.
+    UV = squareVertices.xy + vec2(0.5, 0.5);
+    particlecolor = color;    
+  }
+  else {
+    vec4 vPosition;
 
-  // Output position of the vertex
-  gl_Position = VP * vec4(vertexPosition_worldspace, 1.0f);
+    /* First model transforms */
+    vPosition = uModelMatrix* vec4(aPosition.x, aPosition.y, aPosition.z, 1);
+    vPosition = uViewMatrix* vPosition;
+  //   gl_Position = uProjMatrix*vPosition;
 
-  // UV of the vertex. No special space for this one.
-  UV = squareVertices.xy + vec2(0.5, 0.5);
-  particlecolor = color;  
+    vVert = vec3(uModelMatrix * vec4(aPosition.x, aPosition.y, aPosition.z, 1));
+    vNorm = vec3(uModelMatrix * vec4(aNormal.x, aNormal.y, aNormal.z, 0));
+    
+    vColor = vec3(0.56, 0.3, 0.1);
+    vTexCoord = aTexCoord;  
+  }
 }

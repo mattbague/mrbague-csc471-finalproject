@@ -483,10 +483,15 @@ static void initRain() {
   // The VBO containing the 4 vertices of the particles.
   // Thanks to instancing, they will be shared by all particles.
   static const GLfloat g_vertex_buffer_data[] = { 
-  -0.5f, -0.5f, 0.0f,
-  0.5f, -0.5f, 0.0f,
-  -0.5f, 0.5f, 0.0f,
-  0.5f, 0.5f, 0.0f,
+//   -0.5f, -0.5f, 0.0f,
+//   0.5f, -0.5f, 0.0f,
+//   -0.5f, 0.5f, 0.0f,
+//   0.5f, 0.5f, 0.0f,
+  
+  -0.02f, -0.25f, 0.0f,
+  0.02f, -0.25f, 0.0f,
+  -0.02f, 0.25f, 0.0f,
+  0.02f, 0.25f, 0.0f,
   };
   
   glGenBuffers(1, &billboard_vertex_buffer);
@@ -615,13 +620,14 @@ void Initialize ()                  // Any GL Init Code
 clock_t lastTime = clock();
 
 void drawRain() {
+  glUniform1i(h_isLight, 1);
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
   // Accept fragment if it closer to the camera than the former one
   glDepthFunc(GL_LESS);
   
     clock_t currentTime = clock();
-    double delta = (((float)currentTime - (float)lastTime) / 1000000.0F );
+    long double delta = (((float)currentTime - (float)lastTime) / 1000000.0F );
     lastTime = currentTime;  
   
     // Generate 10 new particule each millisecond,
@@ -634,7 +640,7 @@ void drawRain() {
     for(int i=0; i<newparticles; i++){
       int particleIndex = FindUnusedParticle();
       ParticlesContainer[particleIndex].life = 5.0f; // This particle will live 5 seconds.
-      ParticlesContainer[particleIndex].pos = glm::vec3(0,0,-20.0f);
+      ParticlesContainer[particleIndex].pos = glm::vec3(0,10,0.0f);
 
       float spread = 1.5f;
       glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f);
@@ -651,10 +657,14 @@ void drawRain() {
 
 
       // Very bad way to generate a random color
-      ParticlesContainer[particleIndex].r = rand() % 256;
-      ParticlesContainer[particleIndex].g = rand() % 256;
-      ParticlesContainer[particleIndex].b = rand() % 256;
-      ParticlesContainer[particleIndex].a = (rand() % 256) / 3;
+//       ParticlesContainer[particleIndex].r = rand() % 256;
+//       ParticlesContainer[particleIndex].g = rand() % 256;
+//       ParticlesContainer[particleIndex].b = rand() % 256;
+//       ParticlesContainer[particleIndex].a = (rand() % 256) / 3;
+      ParticlesContainer[particleIndex].r = 16;
+      ParticlesContainer[particleIndex].g = 78;
+      ParticlesContainer[particleIndex].b = 139;
+      ParticlesContainer[particleIndex].a = (rand() % 256) / 3;      
 
       ParticlesContainer[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;
       
@@ -798,8 +808,7 @@ void drawLight() {
   glUniform1i(h_isLight, 1);
   safe_glEnableVertexAttribArray(h_aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, LightBuffObj);
-  safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);    
-  glUniform1i(h_isLight, 1);
+  safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);      
     
   glm::mat4 Trans = glm::translate(glm::mat4(1.0f), lp);
   glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), lightRot, glm::vec3(0, 1, 0));
@@ -928,8 +937,8 @@ void determineClearColor() {
       glClearColor(0.5f,0.5f,0.5f,1.0f);
       break;
     case 3:
-      glClearColor(1.0f,1.0f,1.0f,1.0f);
-//       glClearColor(0.8f,0.8f,0.8f,1.0f);
+//       glClearColor(1.0f,1.0f,1.0f,1.0f);
+      glClearColor(0.8f,0.8f,0.8f,1.0f);
       break;
     case 4:
       glClearColor(0.0f,0.0f,0.0f,1.0f);
