@@ -21,6 +21,8 @@ uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 
+uniform vec3 uViewerPos;
+uniform vec3 uLightPos;
 
 varying vec3 vColor;
 varying vec2 vTexCoord;
@@ -32,7 +34,7 @@ attribute vec3 aNormal;
 uniform int isLight;
 
 void main() {
-  if (isLight == 1) { //REUSING VARIABLE CAUSE I'M LAZY
+   if (isLight == 1) { //REUSING VARIABLE CAUSE I'M LAZY
     float particleSize = xyzs.w; // because we encoded it this way.
     vec3 particleCenter_wordspace = xyzs.xyz;
     
@@ -54,12 +56,12 @@ void main() {
     /* First model transforms */
     vPosition = uModelMatrix* vec4(aPosition.x, aPosition.y, aPosition.z, 1);
     vPosition = uViewMatrix* vPosition;
-  //   gl_Position = uProjMatrix*vPosition;
+    gl_Position = uProjMatrix*vPosition;
 
     vVert = vec3(uModelMatrix * vec4(aPosition.x, aPosition.y, aPosition.z, 1));
     vNorm = vec3(uModelMatrix * vec4(aNormal.x, aNormal.y, aNormal.z, 0));
     
     vColor = vec3(0.56, 0.3, 0.1);
-    vTexCoord = aTexCoord;  
+    vTexCoord = aTexCoord;       
   }
 }

@@ -581,6 +581,7 @@ int InstallShader(const GLchar *vShaderName, const GLchar *fShaderName) {
 
 }
 
+
 /* Some OpenGL initialization */
 void Initialize ()                  // Any GL Init Code
 {
@@ -599,15 +600,24 @@ void Initialize ()                  // Any GL Init Code
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);     
 }
 
+void bindDefaults() {
+  //Set up Viewer Position
+  glUniform3f(h_uViewerPos, g_trans, g_transy, 0);    
+    
+  //Set up light
+  glUniform3f(h_uLightPos, lp.x, lp.y, lp.z);  
+}
+
 //Particle settings
-double fallrate = -9.81;
+double fallrate = -7.81;
 double p_life = 5.0; //In seconds
-glm::vec3 p_color = glm::vec3(16, 78, 139);
+glm::vec3 p_color = glm::vec3(0, 0, 139);
 
 // double lastTime = time(NULL);
 clock_t lastTime = clock();
 
 void drawRain() {
+  bindDefaults();
   glUniform1i(h_isLight, 1);
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
@@ -628,7 +638,7 @@ void drawRain() {
     for(int i=0; i<newparticles; i++){
       int particleIndex = FindUnusedParticle();
       ParticlesContainer[particleIndex].life = p_life; // This particle will live 5 seconds.
-      ParticlesContainer[particleIndex].pos = glm::vec3(0,10,0.0f);
+      ParticlesContainer[particleIndex].pos = glm::vec3(0,7,0.0f);
 
       float spread = 1.5f;
       glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f);
@@ -792,9 +802,11 @@ void drawRain() {
     // for(i in ParticlesCount) : glDrawArrays(GL_TRIANGLE_STRIP, 0, 4), 
     // but faster.
     glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
+    glDisable(GL_BLEND);
 }
 
 void drawLight() {   
+  bindDefaults();
   glUniform1i(h_isLight, 1);
   safe_glEnableVertexAttribArray(h_aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, LightBuffObj);
@@ -812,6 +824,7 @@ void drawLight() {
 }
 
 void drawRoof() {
+  bindDefaults();
   glUniform1i(h_isLight, 0);
   glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE3);
@@ -836,6 +849,7 @@ void drawRoof() {
 }
 
 void drawHexPrism() {
+  bindDefaults();
   glUniform1i(h_isLight, 0);  
   glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE2);
@@ -860,6 +874,7 @@ void drawHexPrism() {
 }
 
 void drawCube() {
+  bindDefaults();
   glUniform1i(h_isLight, 0);  
   //set up the texture unit
   glEnable(GL_TEXTURE_2D);
@@ -890,6 +905,7 @@ void drawCube() {
 }
 
 void drawGround() {
+  bindDefaults();
   glUniform1i(h_isLight, 0);
   glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE1);
@@ -951,15 +967,7 @@ void Draw (void)
     SetView();
     SetModelI();
 
-    //Set up Viewer Position
-    glUniform3f(h_uViewerPos, g_trans, g_transy, 0);    
-    
-    //Set up light
-    glUniform3f(h_uLightPos, lp.x, lp.y, lp.z);
 
-    if (MAKE_IT_RAIN == true) {
-     drawRain();
-    }
     
     //Draw the objects
     drawGround();
@@ -968,6 +976,10 @@ void Draw (void)
     drawRoof();    
     drawLight();
 
+    if (MAKE_IT_RAIN == true) {
+     drawRain();
+    }    
+    
     glutSwapBuffers();    
     
     //Disable the shader
@@ -994,7 +1006,7 @@ void setupRain() {
   
   fallrate = -9.81;
   p_life = 5.0;
-  p_color = glm::vec3(16,78,139);
+  p_color = glm::vec3(0,0,139);
 }
 
 void setupSnow() {
