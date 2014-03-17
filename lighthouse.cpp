@@ -609,7 +609,7 @@ void bindDefaults() {
 }
 
 //Particle settings
-double fallrate = -7.81;
+double fallrate = -9.81;
 double p_life = 5.0; //In seconds
 glm::vec3 p_color = glm::vec3(0, 0, 139);
 
@@ -711,7 +711,7 @@ void drawRain() {
       }
     }
 
-    SortParticles();
+//     SortParticles();
 
 
 //     printf("%d ",ParticlesCount);
@@ -1028,17 +1028,17 @@ void setupRain() {
 //   -0.5f, 0.5f, 0.0f,
 //   0.5f, 0.5f, 0.0f,
   
-  -0.02f, -0.25f, 0.0f,
-  0.02f, -0.25f, 0.0f,
-  -0.02f, 0.25f, 0.0f,
-  0.02f, 0.25f, 0.0f,
+  -0.02f, -0.2f, 0.0f,
+  0.02f, -0.2f, 0.0f,
+  -0.02f, 0.2f, 0.0f,
+  0.02f, 0.2f, 0.0f,
   };
   
   glGenBuffers(1, &billboard_vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);  
   
-//   fallrate = -9.81;
+  fallrate = -9.81;
   p_life = 5.0;
   p_color = glm::vec3(0,0,139);
 }
@@ -1050,18 +1050,18 @@ void setupSnow() {
 //   -0.5f, 0.5f, 0.0f,
 //   0.5f, 0.5f, 0.0f,
   
-  -0.05f, -0.05f, 0.0f,
-  0.05f, -0.05f, 0.0f,
-  -0.05f, 0.05f, 0.0f,
-  0.05f, 0.05f, 0.0f,
+  -0.075f, -0.075f, 0.0f,
+  0.075f, -0.075f, 0.0f,
+  -0.075f, 0.075f, 0.0f,
+  0.075f, 0.075f, 0.0f,
   };  
 
   glGenBuffers(1, &billboard_vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);  
-/*  
-  fallrate = -3;
-  p_life = 20.0;*/
+  
+  fallrate = -9.81;
+  p_life = 5.0;
   p_color = glm::vec3(255, 250, 250);
 }
 
