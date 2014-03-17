@@ -19,7 +19,7 @@ void main(void) {
   
   const vec3 fog_colour = vec3 (0.5, 0.5, 0.5);
   const float min_fog_radius = 1.0;
-  const float max_fog_radius = 20.0;
+  const float max_fog_radius = 15.0;
   
   float dist = length(-uViewerPos);
   // get a fog factor (thickness of fog) based on the distance
@@ -29,7 +29,7 @@ void main(void) {
   vec3 fog_calc = mix(vec3(texColor1[0], texColor1[1], texColor1[2]), fog_colour, fog_fac);
 
   if (isLight == 1) {  
-    fog_calc = mix(vec3(1.0, 1.0, 0.0), vec3 (0.9, 0.9, 0.9), fog_calc);
+    fog_calc = mix(vec3(1.0, 1.0, 0.0), vec3 (0.9, 0.9, 0.9), .5);
   }
   
   vec4 vPosition;

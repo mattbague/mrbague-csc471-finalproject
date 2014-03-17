@@ -24,7 +24,7 @@ uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 
 void main(void) {
-  if (isLight == 1) { //REUSING VARIABLE CAUSE I'M LAZY
+  if (isLight == 2) {
     gl_FragColor = particlecolor;
   }
   else {
@@ -40,6 +40,10 @@ void main(void) {
     
     //NOTE TO SELF: Function description is here: https://www.khronos.org/opengles/sdk/docs/man3/html/mix.xhtml
     vec3 fog_calc = mix(vec3(texColor1[0], texColor1[1], texColor1[2]), fog_colour, fog_fac);    
+    
+    if (isLight == 1) {  
+      fog_calc = mix(vec3(1.0, 1.0, 0.0), fog_colour, .3);
+    }    
     
     vec4 vPosition;
     vec4 light;

@@ -34,7 +34,7 @@ attribute vec3 aNormal;
 uniform int isLight;
 
 void main() {
-   if (isLight == 1) { //REUSING VARIABLE CAUSE I'M LAZY
+   if (isLight == 2) { //REUSING VARIABLE CAUSE I'M LAZY
     float particleSize = xyzs.w; // because we encoded it this way.
     vec3 particleCenter_wordspace = xyzs.xyz;
     

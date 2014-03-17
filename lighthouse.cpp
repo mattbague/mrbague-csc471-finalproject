@@ -84,8 +84,8 @@ GLuint h_isLight;
 int g_CiboLen, g_GiboLen, g_HiboLen, g_RiboLen, g_LiboLen;
 static float  g_width, g_height;
 float g_angle = 0;
-float g_trans = -3;
-float g_transy = -3;
+float g_trans = -5;
+float g_transy = -2;
 float lightRot = 0;
 
 glm::vec3 lp = glm::vec3(0, 3.0, .81);
@@ -611,7 +611,9 @@ void bindDefaults() {
 //Particle settings
 double fallrate = -9.81;
 double p_life = 5.0; //In seconds
-glm::vec3 p_color = glm::vec3(0, 0, 139);
+glm::vec3 p_color = glm::vec3(0, 0, 255);
+glm::vec3 p_dir = glm::vec3(0, 1, 0);
+float p_angle = 0.0f;
 
 // double lastTime = time(NULL);
 clock_t lastTime = clock();
@@ -619,7 +621,7 @@ double asdf = glutGet(GLUT_ELAPSED_TIME);
 
 void drawRain() {
   bindDefaults();
-  glUniform1i(h_isLight, 1);
+  glUniform1i(h_isLight, 2);
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
   // Accept fragment if it closer to the camera than the former one
@@ -639,7 +641,7 @@ void drawRain() {
     for(int i=0; i<newparticles; i++){
       int particleIndex = FindUnusedParticle();
       ParticlesContainer[particleIndex].life = p_life; // This particle will live 5 seconds.
-      ParticlesContainer[particleIndex].pos = glm::vec3(0,7,0.0f);
+      ParticlesContainer[particleIndex].pos = glm::vec3(0,8,0.0f);
 
       float spread = 1.5f;
       glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f);
@@ -743,8 +745,11 @@ void drawRain() {
     glUniform1i(TextureID, 0);
 
     // Same as the billboards tutorial
-    glm::mat4 Trans = glm::translate( glm::mat4(1.0f), glm::vec3(0.0f, g_transy, g_trans));
-    glm::mat4 ViewMatrix = glm::rotate( Trans, g_angle, glm::vec3(0.0f, 1, 0));    
+//     glm::mat4 Trans = glm::translate( glm::mat4(1.0f), glm::vec3(0.0f, g_transy, g_trans));
+     glm::mat4 Trans = glm::translate( glm::mat4(1.0f), glm::vec3(0.0f, g_transy, g_trans));
+//     glm::mat4 ViewMatrix = glm::rotate(Trans, g_angle, glm::vec3(0.0f, 1, 0));    
+    
+    glm::mat4 ViewMatrix = glm::rotate(Trans, p_angle, p_dir);    
     glUniform3f(CameraRight_worldspace_ID, ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
     glUniform3f(CameraUp_worldspace_ID   , ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
 
@@ -999,8 +1004,6 @@ void Draw (void)
     SetProjectionMatrix();
     SetView();
     SetModelI();
-
-
     
     //Draw the objects
     drawGround();
@@ -1022,16 +1025,16 @@ void Draw (void)
 }
 
 void setupRain() {
-  static const GLfloat g_vertex_buffer_data[] = { 
-//   -0.5f, -0.5f, 0.0f,
-//   0.5f, -0.5f, 0.0f,
-//   -0.5f, 0.5f, 0.0f,
-//   0.5f, 0.5f, 0.0f,
+  for (int i=0; i<MaxParticles; i++){
+    ParticlesContainer[i].life = -1.0f;
+    ParticlesContainer[i].cameradistance = -1.0f;
+  }      
   
-  -0.02f, -0.2f, 0.0f,
-  0.02f, -0.2f, 0.0f,
-  -0.02f, 0.2f, 0.0f,
-  0.02f, 0.2f, 0.0f,
+  static const GLfloat g_vertex_buffer_data[] = { 
+  -0.015f, -0.2f, 0.0f,
+  0.015f, -0.2f, 0.0f,
+  -0.015f, 0.2f, 0.0f,
+  0.015f, 0.2f, 0.0f,
   };
   
   glGenBuffers(1, &billboard_vertex_buffer);
@@ -1040,16 +1043,18 @@ void setupRain() {
   
   fallrate = -9.81;
   p_life = 5.0;
-  p_color = glm::vec3(0,0,139);
+  p_color = glm::vec3(0,0,255);
+  p_dir = glm::vec3(0,1,0);
+  p_angle = 0.0f;  
 }
 
 void setupSnow() {
-  static const GLfloat g_vertex_buffer_data[] = { 
-//   -0.5f, -0.5f, 0.0f,
-//   0.5f, -0.5f, 0.0f,
-//   -0.5f, 0.5f, 0.0f,
-//   0.5f, 0.5f, 0.0f,
+  for (int i=0; i<MaxParticles; i++){
+    ParticlesContainer[i].life = -1.0f;
+    ParticlesContainer[i].cameradistance = -1.0f;
+  }    
   
+  static const GLfloat g_vertex_buffer_data[] = {   
   -0.075f, -0.075f, 0.0f,
   0.075f, -0.075f, 0.0f,
   -0.075f, 0.075f, 0.0f,
@@ -1063,16 +1068,18 @@ void setupSnow() {
   fallrate = -9.81;
   p_life = 5.0;
   p_color = glm::vec3(255, 250, 250);
+  p_dir = glm::vec3(0,0,1);
+  p_angle = 45.0f;    
 }
 
 void keyboard(unsigned char key, int x, int y ){
   switch( key ) {
     /* WASD keyes effect view/camera transform */
     case 'w':
-      g_trans += 0.1;
+      g_trans += 0.2;
       break;
     case 's':
-      g_trans -= 0.1;
+      g_trans -= 0.2;
       break;
     case 'a':
       g_angle += 1;
@@ -1196,7 +1203,7 @@ int main(int argc, char** argv) {
   glutInitWindowPosition( 20, 20 );
   glutInitWindowSize(700, 700);
   glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-  glutCreateWindow("Weather Simulation");
+  glutCreateWindow("Weather");
   
   //set up the opengl call backs
   glutDisplayFunc(Draw);
