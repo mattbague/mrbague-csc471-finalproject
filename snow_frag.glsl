@@ -19,17 +19,27 @@ varying vec3 vVert;
 
 uniform int isLight;
 
-void main(void) {
-  vec4 texColor0 = vec4(vColor.x, vColor.y, vColor.z, 1);
-  vec4 texColor1 = texture2D(uTexUnit, vTexCoord);
+uniform mat4 uProjMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uModelMatrix;
 
-  vec3 uLightColor = vec3(1.0, 1.0, 1.0);
- 
-  if  (isLight == 1) { //REUSING VARIABLE CAUSE I'M LAZY
+void main(void) {
+  if (isLight == 1) { //REUSING VARIABLE CAUSE I'M LAZY
     gl_FragColor = particlecolor;
   }
-  else {  
-    vec3 fog_calc = vec3(1.0, 1.0, 1.0);
+  else {
+    vec4 texColor0 = vec4(vColor.x, vColor.y, vColor.z, 1);
+    vec4 texColor1 = texture2D(uTexUnit, vTexCoord);
+
+    vec3 uLightColor = vec3(1.0, 1.0, 1.0);
+ 
+    vec3 fog_colour = vec3(0.0, 0.0, 0.0);
+    
+    // get a fog factor (thickness of fog) based on the distance
+    float fog_fac = .7;  
+    
+    //NOTE TO SELF: Function description is here: https://www.khronos.org/opengles/sdk/docs/man3/html/mix.xhtml
+    vec3 fog_calc = mix(vec3(texColor1[0], texColor1[1], texColor1[2]), fog_colour, fog_fac);    
     
     vec4 vPosition;
     vec4 light;
@@ -39,13 +49,13 @@ void main(void) {
     vec3 fColor;
 
     //Calculating Diffuse
-    Diffuse = uLightColor * max(dot(normalize(vNorm), normalize(uLightPos)), 0);
+    Diffuse = uLightColor * max(dot(normalize(vNorm), normalize(uLightPos)), 0) * fog_calc;
     
     //Calculating Specular
     Viewer = normalize(uViewerPos - vVert);
     Refl = (-uLightPos) + 2.0 * (dot(normalize(uLightPos), normalize(vNorm))) * vNorm;  
     Refl = normalize(Refl);
-    Spec = uLightColor * pow(dot(Viewer, Refl), 2.0) ; 
+    Spec = uLightColor * pow(dot(Viewer, Refl), 2.0) * fog_calc; 
     
     //Calculating Color
     float attenuation = length(uLightPos);
@@ -56,10 +66,8 @@ void main(void) {
     Spec.x /= attenuation;
     Spec.y /= attenuation;
     Spec.z /= attenuation;
-    fColor = Diffuse + Spec + uLightColor;
-    
+    fColor = Diffuse + Spec + fog_calc * uLightColor;
+     
     gl_FragColor = vec4(fColor.r, fColor.g, fColor.b, 1.0);  
-    gl_FragColor = texColor1;
   }
-
 }

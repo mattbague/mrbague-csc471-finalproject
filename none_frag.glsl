@@ -21,8 +21,6 @@ void main(void) {
     gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
   }
   else {
-    //NOTE TO SELF: Function description is here: https://www.khronos.org/opengles/sdk/docs/man3/html/mix.xhtml
-    vec3 fog_calc = vec3(1.0, 1.0, 1.0);
     
     vec4 vPosition;
     vec4 light;
@@ -51,7 +49,6 @@ void main(void) {
     Spec.z /= attenuation;
     fColor = Diffuse + Spec + uLightColor;
     
-    gl_FragColor = vec4(fColor.r, fColor.g, fColor.b, 1.0);  
     gl_FragColor = texColor1;
   }  
 }

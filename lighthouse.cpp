@@ -615,6 +615,7 @@ glm::vec3 p_color = glm::vec3(0, 0, 139);
 
 // double lastTime = time(NULL);
 clock_t lastTime = clock();
+double asdf = glutGet(GLUT_ELAPSED_TIME);
 
 void drawRain() {
   bindDefaults();
@@ -958,6 +959,34 @@ void determineClearColor() {
   glutPostRedisplay();
 }
 
+float frameCount = 0;
+int previousTime = 0;
+
+void calculateFPS()
+{
+    //  Increase frame count
+    frameCount++;
+ 
+    //  Get the number of milliseconds since glutInit called
+    //  (or first call to glutGet(GLUT ELAPSED TIME)).
+    int currentTime = glutGet(GLUT_ELAPSED_TIME);
+ 
+    //  Calculate time passed
+    int timeInterval = currentTime - previousTime;
+ 
+    if(timeInterval > 1000)
+    {
+        //  calculate the number of frames per second
+        float fps = frameCount / (timeInterval / 1000.0f);
+        printf("%f\n", fps);
+        //  Set time
+        previousTime = currentTime;
+ 
+        //  Reset frame count
+        frameCount = 0;
+    }
+}
+
 /* Main display function */
 void Draw (void)
 {
@@ -983,12 +1012,13 @@ void Draw (void)
     if (MAKE_IT_RAIN == true) {
      drawRain();
     }    
-    
+
     glutSwapBuffers();    
     
     //Disable the shader
     glUseProgram(0);
     glDisable(GL_TEXTURE_2D);
+    calculateFPS();    
 }
 
 void setupRain() {
@@ -1008,7 +1038,7 @@ void setupRain() {
   glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
   
-  fallrate = -9.81;
+//   fallrate = -9.81;
   p_life = 5.0;
   p_color = glm::vec3(0,0,139);
 }
@@ -1166,7 +1196,7 @@ int main(int argc, char** argv) {
   glutInitWindowPosition( 20, 20 );
   glutInitWindowSize(700, 700);
   glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-  glutCreateWindow("My First texture maps");
+  glutCreateWindow("Weather Simulation");
   
   //set up the opengl call backs
   glutDisplayFunc(Draw);

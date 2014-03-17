@@ -33,8 +33,13 @@ void main(void) {
 
     vec3 uLightColor = vec3(1.0, 1.0, 1.0);
  
-
-    vec3 fog_calc = vec3(1.0, 1.0, 1.0);
+    vec3 fog_colour = vec3(0.4, 0.4, 0.5);
+    
+    // get a fog factor (thickness of fog) based on the distance
+    float fog_fac = .5;  
+    
+    //NOTE TO SELF: Function description is here: https://www.khronos.org/opengles/sdk/docs/man3/html/mix.xhtml
+    vec3 fog_calc = mix(vec3(texColor1[0], texColor1[1], texColor1[2]), fog_colour, fog_fac);    
     
     vec4 vPosition;
     vec4 light;
@@ -44,13 +49,13 @@ void main(void) {
     vec3 fColor;
 
     //Calculating Diffuse
-    Diffuse = uLightColor * max(dot(normalize(vNorm), normalize(uLightPos)), 0);
+    Diffuse = uLightColor * max(dot(normalize(vNorm), normalize(uLightPos)), 0) * fog_calc;
     
     //Calculating Specular
     Viewer = normalize(uViewerPos - vVert);
     Refl = (-uLightPos) + 2.0 * (dot(normalize(uLightPos), normalize(vNorm))) * vNorm;  
     Refl = normalize(Refl);
-    Spec = uLightColor * pow(dot(Viewer, Refl), 2.0) ; 
+    Spec = uLightColor * pow(dot(Viewer, Refl), 2.0) * fog_calc; 
     
     //Calculating Color
     float attenuation = length(uLightPos);
@@ -61,8 +66,8 @@ void main(void) {
     Spec.x /= attenuation;
     Spec.y /= attenuation;
     Spec.z /= attenuation;
-    fColor = Diffuse + Spec + uLightColor;
+    fColor = Diffuse + Spec + fog_calc * uLightColor;
      
-    gl_FragColor = texColor1;
+    gl_FragColor = vec4(fColor.r, fColor.g, fColor.b, 1.0);  
   }
 }
