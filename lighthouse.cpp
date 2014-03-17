@@ -802,7 +802,11 @@ void drawRain() {
     // for(i in ParticlesCount) : glDrawArrays(GL_TRIANGLE_STRIP, 0, 4), 
     // but faster.
     glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
-    glDisable(GL_BLEND);
+
+    //Disable stuff
+    safe_glDisableVertexAttribArray(squareVerticesID);
+    safe_glDisableVertexAttribArray(xyzsID);
+    safe_glDisableVertexAttribArray(colorID);
 }
 
 void drawLight() {   
