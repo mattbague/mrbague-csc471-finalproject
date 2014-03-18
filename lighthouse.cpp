@@ -403,23 +403,51 @@ static void initRoof() {
 }
 
 static void initLight() {
-  float CubePos[] = {
-    -0.35, -0.35, -0.35, 
-    -0.35, 0.35, -0.35, 
-    0.35, 0.35, -0.35, 
-    0.35, -0.35, -0.35, 
-    -0.35, -0.35, 0.35, 
-    -0.35, 0.35, 0.35, 
-    0.35, 0.35, 0.35, 
-    0.35, -0.35, 0.35
-  };
-   
-   unsigned short idx[] = {0, 1, 2, 0, 2, 3, 7, 6, 4, 4, 6, 5, 1, 5, 6, 1, 6, 2, 0, 3, 7, 0, 7, 4,
-     2, 3, 6,
-     3, 7, 6,
-     0, 1, 5,
-     0, 4, 5
-  };
+  float t_height = 15, b_height = 0, x = .58, z = 1;
+  float big = 2.0;
+  float CubePos[] = { //NOT ACTUALLY A CUBE LOL
+    // Top hexagon: 6 verts going CW
+    -x*big, t_height, -z*big,                   //0
+    -1*big, t_height, 0,                //1
+    -x*big, t_height, z*big,                    //2
+    x*big, t_height, z*big,                     //3
+    1*big, t_height, 0,               //4
+    x*big, t_height, -z*big,                    //5
+    // Bottom hexagon: 6 verts going CW
+    -x/2.2, b_height, -z/2.2,              //6
+    -1.0/2.2, b_height, 0,            //7
+    -x/2.2, b_height, z/2.2,                //8
+    x/2.2, b_height, z/2.2,                 //9
+    1.0/2.2, b_height, 0,           //10
+    x/2.2, b_height, -z/2.2                 //11
+  };    
+
+  unsigned short idx[] = {0, 6, 1, 1, 7, 6,
+    1, 7, 2, 2, 8, 7,
+    2, 8, 3, 3, 9, 8,
+    3, 9, 4, 4, 10, 9,
+    4, 10, 5, 5, 11, 10, 
+    5, 11, 0, 0, 6, 11
+  };  
+  
+    g_LiboLen = 36;
+//   float CubePos[] = {
+//     -0.35, -0.35, -0.35, 
+//     -0.35, 0.35, -0.35, 
+//     0.35, 0.35, -0.35, 
+//     0.35, -0.35, -0.35, 
+//     -0.35, -0.35, 0.35, 
+//     -0.35, 0.35, 0.35, 
+//     0.35, 0.35, 0.35, 
+//     0.35, -0.35, 0.35
+//   };
+//    
+//    unsigned short idx[] = {0, 1, 2, 0, 2, 3, 7, 6, 4, 4, 6, 5, 1, 5, 6, 1, 6, 2, 0, 3, 7, 0, 7, 4,
+//      2, 3, 6,
+//      3, 7, 6,
+//      0, 1, 5,
+//      0, 4, 5
+//   };
 
     g_LiboLen = 36;
     glGenBuffers(1, &LightBuffObj);
@@ -818,19 +846,25 @@ void drawRain() {
 void drawLight() {   
   bindDefaults();
   glUniform1i(h_isLight, 1);
+    
   safe_glEnableVertexAttribArray(h_aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, LightBuffObj);
   safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);      
     
-  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), lp);
+  glm::mat4 Trans = glm::translate(glm::mat4(1.0f), lp);  
   glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), lightRot, glm::vec3(0, 1, 0));
-  safe_glUniformMatrix4fv(h_uModelMatrix, glm::value_ptr(Rot*Trans));
-    
+  glm::mat4 Rot2 = glm::rotate(glm::mat4(1.0f), 90.f, glm::vec3(1,0,0));
+  safe_glUniformMatrix4fv(h_uModelMatrix, glm::value_ptr(Rot*Trans*Rot2));
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+  
   // bind ibo
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, LIndxBuffObj);
   glDrawElements(GL_TRIANGLES, g_LiboLen, GL_UNSIGNED_SHORT, 0);           
     
   safe_glDisableVertexAttribArray(h_aPosition);   
+  glDisable(GL_BLEND);
 }
 
 void drawRoof() {
@@ -1009,8 +1043,11 @@ void Draw (void)
     drawGround();
     drawCube();
     drawHexPrism();
-    drawRoof();    
-    drawLight();
+    drawRoof();   
+    
+    if (ROTATE == true) {
+      drawLight();
+    }
 
     if (MAKE_IT_RAIN == true) {
      drawRain();

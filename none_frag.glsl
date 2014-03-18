@@ -17,8 +17,15 @@ void main(void) {
 
   vec3 uLightColor = vec3(1.0, 1.0, 1.0);
   
-  if (isLight == 1) {  
-    gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+  float trans = 1.0;
+  if (isLight == 1) {          
+    gl_FragColor = vec4(1.0, 1.0, 0.0, .5);    
+    if (gl_FragCoord.x > 350) {        
+      gl_FragColor = vec4(1.0, 1.0, 0.0, (700.0 - gl_FragCoord.x) / 350 + .1);
+    }
+    else if (gl_FragCoord.x <= 350) {
+       gl_FragColor = vec4(1.0, 1.0, 0.0, gl_FragCoord.x / 350 + .1);
+    }    
   }
   else {
     

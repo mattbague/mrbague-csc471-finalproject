@@ -28,8 +28,15 @@ void main(void) {
   //NOTE TO SELF: Function description is here: https://www.khronos.org/opengles/sdk/docs/man3/html/mix.xhtml
   vec3 fog_calc = mix(vec3(texColor1[0], texColor1[1], texColor1[2]), fog_colour, fog_fac);
 
+  float trans = 1.0;
   if (isLight == 1) {  
     fog_calc = mix(vec3(1.0, 1.0, 0.0), vec3 (0.9, 0.9, 0.9), .5);
+      if (gl_FragCoord.x > 350) {        
+	trans = (700.0 - gl_FragCoord.x) / 350 + .1;
+      }
+      else if (gl_FragCoord.x <= 350) {
+	trans = gl_FragCoord.x / 350 + .1;
+      } 
   }
   
   vec4 vPosition;
@@ -59,5 +66,5 @@ void main(void) {
   Spec.z /= attenuation;
   fColor = Diffuse + Spec + fog_calc * uLightColor;
   
-  gl_FragColor = vec4(fColor.r, fColor.g, fColor.b, 1.0);  
+  gl_FragColor = vec4(fColor.r, fColor.g, fColor.b, trans);  
 }
