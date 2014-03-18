@@ -30,38 +30,7 @@ Author:     Matt Bague
 ==============
 * What Works *
 ==============
-
-
-====================
-* Design Decisions *
-====================
-I used the trackball code provided by Dr. Wood since my previous code
-wasn't 100% correct. I did not make any changes to it and simply copied and
-pasted it into the Assignment 3 base code (and added a few missing variables).
-
-When loading in the mesh, I calculate the normals once based on the initial
-values provided by the mesh file which is then saved to the VBO. To deal with
-the normals being transformed, I use the VBO normals and apply the ModelMatrix
-to them in the shader each time rather than store them in some data structure 
-and update them. I assumed this would be faster on the GPU than CPU.
-
-For distance attenuation, I decided to use 1/d^2 for the attenuation/fall off value.
-I got this number from reading the article and comments on this site:
-http://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
-
-For viewer position, I assumed the viewer just stayed along the z-axis and
-zoomed in or out of the object. Like a microscope almost and a slide where the
-viewer is the microscope (doesn't move except up and down) and the bunny is
-the slide, which moves in multiple directions.
-
-For light position, I put it between the viewer and the object, to the right, and up.
-It seemed to match the demo image fairly close. Also, I did not shade the light cube
-since I just assumed it was a constant source of light that generated the same amount
-in all directions regardless.
-
-For managing multipe shaders, I decided to create a vertex and fragment shader file
-for each type of shading and use keyboard commands to load the different shaders in.
-
-For materials, I made one more shiny (identical parameters to the one in the project specs) 
-and one matte in order to show both types.
+I finished everything I set out to accomplish according to my project proposal. 
+Some stuff was different than I expected or had to be tweaked,
+but overall I'd say it turned out as I had planned, possibly even better.
 
