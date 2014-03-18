@@ -11,6 +11,8 @@ varying vec3 vVert;
 
 uniform int isLight;
 
+uniform vec3 uSLColor;
+
 void main(void) {
   vec4 texColor0 = vec4(vColor.x, vColor.y, vColor.z, 1);
   vec4 texColor1 = texture2D(uTexUnit, vTexCoord);
@@ -21,10 +23,10 @@ void main(void) {
   if (isLight == 1) {          
     gl_FragColor = vec4(1.0, 1.0, 0.0, .5);    
     if (gl_FragCoord.x > 350) {        
-      gl_FragColor = vec4(1.0, 1.0, 0.0, (700.0 - gl_FragCoord.x) / 350 + .1);
+      gl_FragColor = vec4(uSLColor.x, uSLColor.y, uSLColor.z, (700.0 - gl_FragCoord.x) / 350 + .1);
     }
     else if (gl_FragCoord.x <= 350) {
-       gl_FragColor = vec4(1.0, 1.0, 0.0, gl_FragCoord.x / 350 + .1);
+       gl_FragColor = vec4(uSLColor.x, uSLColor.y, uSLColor.z, gl_FragCoord.x / 350 + .1);
     }    
   }
   else {

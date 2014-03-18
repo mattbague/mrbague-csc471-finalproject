@@ -23,6 +23,8 @@ uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 
+uniform vec3 uSLColor;
+
 void main(void) {
   if (isLight == 2) { //REUSING VARIABLE CAUSE I'M LAZY
     gl_FragColor = particlecolor;
@@ -43,7 +45,7 @@ void main(void) {
 
     float trans = 1.0;
     if (isLight == 1) {  
-      fog_calc = mix(vec3(1.0, 1.0, 0.0), fog_colour, .3);
+      fog_calc = mix(vec3(uSLColor.x, uSLColor.y, uSLColor.z), fog_colour, .3);
       
       if (gl_FragCoord.x > 350) {        
 	trans = (700.0 - gl_FragCoord.x) / 350 + .1;

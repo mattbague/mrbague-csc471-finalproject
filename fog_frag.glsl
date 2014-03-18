@@ -11,6 +11,8 @@ varying vec3 vVert;
 
 uniform int isLight;
 
+uniform vec3 uSLColor;
+
 void main(void) {
   vec4 texColor0 = vec4(vColor.x, vColor.y, vColor.z, 1);
   vec4 texColor1 = texture2D(uTexUnit, vTexCoord);
@@ -30,7 +32,7 @@ void main(void) {
 
   float trans = 1.0;
   if (isLight == 1) {  
-    fog_calc = mix(vec3(1.0, 1.0, 0.0), vec3 (0.9, 0.9, 0.9), .5);
+    fog_calc = mix(vec3(uSLColor.x, uSLColor.y, uSLColor.z), vec3 (0.9, 0.9, 0.9), .5);
       if (gl_FragCoord.x > 350) {        
 	trans = (700.0 - gl_FragCoord.x) / 350 + .1;
       }

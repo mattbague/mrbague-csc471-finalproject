@@ -71,6 +71,7 @@ GLint h_uViewerPos;
 GLint h_aNormal;
 GLint h_uLightPos;
 GLint h_uLightColor;
+GLint h_uSLColor;
 
 static int SHADER_MODE; // 1 = Nothing, 2 = Fog, 3 = Rain, 4 = Snow
 static bool ROTATE = false;
@@ -89,6 +90,7 @@ float g_transy = -2;
 float lightRot = 0;
 
 glm::vec3 lp = glm::vec3(0, 3.0, .81);
+glm::vec3 SLColor = glm::vec3(1.0, 1.0, 0.0);
 
 static const float g_groundY = -1.5;      // y coordinate of the ground
 static const float g_groundSize = 20.0;   // half the ground length
@@ -587,6 +589,9 @@ int InstallShader(const GLchar *vShaderName, const GLchar *fShaderName) {
        h_uViewerPos = safe_glGetUniformLocation(ShadeProg, "uViewerPos");
        h_uLightPos = safe_glGetUniformLocation(ShadeProg, "uLightPos");
        h_isLight = safe_glGetUniformLocation(ShadeProg, "isLight");
+       
+       //Spotlight
+       h_uSLColor = safe_glGetUniformLocation(ShadeProg, "uSLColor");
 
       // Vertex shader
       CameraRight_worldspace_ID  = glGetUniformLocation(ShadeProg, "CameraRight_worldspace");
@@ -846,7 +851,8 @@ void drawRain() {
 void drawLight() {   
   bindDefaults();
   glUniform1i(h_isLight, 1);
-    
+  glUniform3f(h_uSLColor, SLColor.x, SLColor.y, SLColor.z);
+  
   safe_glEnableVertexAttribArray(h_aPosition);
   glBindBuffer(GL_ARRAY_BUFFER, LightBuffObj);
   safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);      
@@ -1129,28 +1135,40 @@ void keyboard(unsigned char key, int x, int y ){
       break;
     case 'f':
       g_transy += .1;
-      break;      
-    case 'u':
-      lp.x +=.1;
+      break;  
+    case 'v':
+      SLColor = glm::vec3(1.0, 1.0, 0.0);
       break;
-    case 'j':
-      lp.x -=.1;
+    case 'b':
+      SLColor = glm::vec3(0.0, 0.0, 1.0);
       break;
-    case 'i':
-      lp.y +=.1;
+    case 'n':
+      SLColor = glm::vec3(1.0, 0.0, 0.0);
       break;
-    case 'k':
-      lp.y -=.1;
+    case 'm':
+      SLColor = glm::vec3(0.0, 1.0, 0.0);
       break;
-    case 'o':
-      lp.z +=.1;
-      break;
-    case 'l':
-      lp.z -=.1;
-      break;    
-    case 'c':
-      lp = glm::vec3(0, 5.0, 0);
-      break;
+//     case 'u':
+//       lp.x +=.1;
+//       break;
+//     case 'j':
+//       lp.x -=.1;
+//       break;
+//     case 'i':
+//       lp.y +=.1;
+//       break;
+//     case 'k':
+//       lp.y -=.1;
+//       break;
+//     case 'o':
+//       lp.z +=.1;
+//       break;
+//     case 'l':
+//       lp.z -=.1;
+//       break;    
+//     case 'c':
+//       lp = glm::vec3(0, 5.0, 0);
+//       break;
     case '1':
       if (!InstallShader(textFileRead((char *)"none_vert.glsl"), textFileRead((char *)"none_frag.glsl"))) {
         printf("Error installing Rain shader!\n");
